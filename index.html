@@ -1,0 +1,977 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#eef0ea" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0c1110" media="(prefers-color-scheme: dark)" />
+  <link rel="icon" href="data:," />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <title>UNDER PRESSURE Companion</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #eef0ea;
+      --surface: #ffffff;
+      --surface-2: #e1e5dc;
+      --ink: #132019;
+      --muted: #536158;
+      --line: #aab5ab;
+      --shadow: 0 18px 40px rgba(22, 42, 31, .10);
+      --force: #dc552f;
+      --force-soft: #f8ded3;
+      --power: #0e8070;
+      --power-soft: #d3eee8;
+      --pressure: #d49b17;
+      --pressure-soft: #f5e7bb;
+      --danger: #bd2f2f;
+      --danger-soft: #f6d8d3;
+      --dark-button: #16231c;
+      --button-ink: #f8fbf7;
+      --focus: #126f60;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0c1110;
+        --surface: #151c19;
+        --surface-2: #202925;
+        --ink: #eff5ef;
+        --muted: #a8b6ac;
+        --line: #35423b;
+        --shadow: 0 18px 40px rgba(0, 0, 0, .28);
+        --force: #ff7951;
+        --force-soft: #3c211a;
+        --power: #39c8ad;
+        --power-soft: #12362f;
+        --pressure: #f0bd3c;
+        --pressure-soft: #3a3015;
+        --danger: #ff756e;
+        --danger-soft: #3b1e1d;
+        --dark-button: #eff5ef;
+        --button-ink: #101612;
+        --focus: #57d7bd;
+      }
+    }
+
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html { min-height: 100%; background: var(--bg); }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      min-height: 100svh;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "IBM Plex Sans", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    button, input { font: inherit; }
+    button { color: inherit; }
+    button:focus-visible, input:focus-visible {
+      outline: 3px solid color-mix(in srgb, var(--focus), transparent 40%);
+      outline-offset: 2px;
+    }
+    input { font-size: 16px; }
+    h2, p { margin-top: 0; }
+
+    .shell {
+      width: min(100%, 980px);
+      min-height: 100svh;
+      margin: 0 auto;
+      padding: max(18px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+    }
+
+    .gamebar {
+      position: relative;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .name-input {
+      flex: 1 1 auto;
+      min-width: 0;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--ink);
+      padding: 12px 14px;
+      min-height: 48px;
+      font-weight: 650;
+    }
+    .name-input::placeholder { color: var(--muted); font-weight: 500; }
+    .turn-label {
+      flex: 0 0 auto;
+      color: var(--muted);
+      font-size: .85rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .reset-button {
+      flex: 0 0 auto;
+      min-height: 48px;
+      padding: 0 16px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      cursor: pointer;
+      font-weight: 650;
+    }
+    .reset-button.armed { border-color: var(--danger); color: var(--danger); }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: minmax(320px, 1.1fr) minmax(300px, .9fr);
+      gap: 18px;
+      align-items: start;
+    }
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .refill {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 18px;
+      background: var(--force-soft);
+      border: 1px solid color-mix(in srgb, var(--force), var(--line) 40%);
+    }
+    .refill p {
+      margin: 0;
+      flex: 1 1 180px;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+    .refill p span { color: var(--force); }
+    .refill-actions { display: flex; flex-wrap: wrap; gap: 9px; }
+    .refill-actions button {
+      min-height: 56px;
+      padding: 0 16px;
+      border: 1px solid var(--force);
+      background: var(--surface);
+      color: var(--ink);
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .refill-actions button:disabled { opacity: .4; cursor: default; }
+
+    .pressure-panel { padding: clamp(22px, 4vw, 34px); }
+    .panel-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+    .panel-head h2 { margin: 0; font-size: 1rem; }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--muted);
+      font-size: .82rem;
+      font-weight: 600;
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--line);
+    }
+    .status.running .status-dot { background: var(--power); animation: pulse 1.4s infinite; }
+    .status.expired { color: var(--danger); }
+    .status.expired .status-dot { background: var(--danger); }
+    @keyframes pulse { 50% { opacity: .35; } }
+
+    .gauge-wrap { display: grid; place-items: center; margin: 0 auto 25px; }
+    .gauge {
+      --progress: 100%;
+      width: min(58vw, 290px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: conic-gradient(var(--pressure) var(--progress), var(--surface-2) 0);
+      position: relative;
+      transition: background .15s linear;
+    }
+    .gauge::before {
+      content: "";
+      position: absolute;
+      inset: 15px;
+      border-radius: 50%;
+      background: var(--surface);
+      box-shadow: inset 0 0 0 1px var(--line);
+    }
+    .gauge-value {
+      position: relative;
+      text-align: center;
+      font-family: "IBM Plex Mono", monospace;
+    }
+    .gauge-value strong {
+      display: block;
+      font-size: clamp(3.4rem, 14vw, 6.1rem);
+      line-height: .85;
+      letter-spacing: -.08em;
+    }
+    .gauge-value span { color: var(--muted); font-size: .75rem; text-transform: uppercase; letter-spacing: .11em; }
+    .gauge-value .next-start-note {
+      display: block;
+      margin-top: 6px;
+      color: color-mix(in srgb, var(--pressure), var(--ink) 45%);
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: none;
+      letter-spacing: .02em;
+    }
+    .elimination-note {
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: .82rem;
+      font-weight: 600;
+      line-height: 1.5;
+      text-align: center;
+    }
+    .timer-controls { display: grid; grid-template-columns: 1fr auto; gap: 10px; }
+    .start-button, .end-button {
+      min-height: 56px;
+      border: 0;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .start-button { background: var(--dark-button); color: var(--button-ink); }
+    .end-button { min-width: 92px; border: 1px solid var(--line); background: transparent; }
+    .start-button:disabled { cursor: default; opacity: .45; }
+    .end-button:disabled { opacity: .4; cursor: default; }
+
+    .actions-title {
+      margin: 26px 0 10px;
+      color: var(--muted);
+      font-size: .74rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+    .action {
+      min-height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border: 1px solid var(--line);
+      background: var(--bg);
+      padding: 0 14px;
+      cursor: pointer;
+      font-weight: 650;
+    }
+    .action code {
+      font-family: "IBM Plex Mono", monospace;
+      color: var(--muted);
+      font-size: .8rem;
+    }
+    .action-copy { display: grid; gap: 2px; text-align: left; }
+    .action-note { color: var(--force); font-size: .68rem; font-weight: 700; }
+    .action:disabled { opacity: .4; cursor: default; }
+    .action:disabled .action-note { opacity: 1; }
+
+    .right-column { display: grid; gap: 18px; }
+    .resources { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .resource { padding: 20px 18px 16px; box-shadow: none; }
+    .resource.force { background: var(--force-soft); border-color: color-mix(in srgb, var(--force), var(--line) 50%); }
+    .resource.power { background: var(--power-soft); border-color: color-mix(in srgb, var(--power), var(--line) 50%); }
+    .resource .label { color: var(--muted); font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+    .resource .value {
+      margin: 8px 0 18px;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: clamp(2.4rem, 8vw, 4rem);
+      font-weight: 600;
+      letter-spacing: -.06em;
+      line-height: 1;
+    }
+    .stepper { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+    .stepper button {
+      min-width: 0;
+      min-height: 48px;
+      border: 1px solid currentColor;
+      background: transparent;
+      cursor: pointer;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: .78rem;
+    }
+    .stepper button:disabled { opacity: .4; cursor: default; }
+
+    .transfer-panel { padding: 20px; box-shadow: none; }
+    .transfer-panel .panel-head { margin-bottom: 12px; }
+    .transfer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+    .transfer {
+      min-height: 56px;
+      border: 1px solid var(--line);
+      background: var(--bg);
+      padding: 0 14px;
+      cursor: pointer;
+      font-weight: 650;
+      text-align: left;
+    }
+    .transfer:disabled { opacity: .4; cursor: default; }
+
+    .eliminated {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      display: none;
+      place-items: center;
+      background: rgba(4, 10, 7, .72);
+      padding: 20px;
+      touch-action: none;
+    }
+    .eliminated.show { display: grid; }
+    .eliminated-card {
+      width: min(100%, 430px);
+      border: 2px solid var(--danger);
+      background: var(--danger-soft);
+      color: var(--danger);
+      box-shadow: var(--shadow);
+      padding: clamp(26px, 7vw, 42px);
+      text-align: center;
+    }
+    .eliminated-card h2 {
+      margin-bottom: 10px;
+      font-size: clamp(2rem, 9vw, 3.5rem);
+      line-height: .95;
+      letter-spacing: -.04em;
+    }
+    .eliminated-card p { margin: 0 0 20px; line-height: 1.5; font-weight: 650; }
+    .eliminated-card button {
+      min-height: 56px;
+      padding: 0 22px;
+      border: 0;
+      background: var(--dark-button);
+      color: var(--button-ink);
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      display: none;
+      place-items: end center;
+      background: rgba(4, 10, 7, .58);
+      padding: 18px;
+    }
+    .modal-backdrop.open { display: grid; }
+    .modal {
+      width: min(100%, 520px);
+      max-height: calc(100svh - 36px);
+      overflow: auto;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      padding: 24px;
+    }
+    .modal h2 { margin: 0 0 6px; font-size: 1.25rem; }
+    .modal .modal-hint { margin: 0 0 18px; color: var(--muted); font-size: .88rem; line-height: 1.45; }
+    .modal label { display: block; font-weight: 650; font-size: .9rem; margin-bottom: 8px; }
+    .modal input {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: var(--bg);
+      color: var(--ink);
+      padding: 13px 14px;
+      min-height: 52px;
+    }
+    .modal input.shake { animation: shake .3s; border-color: var(--danger); }
+    @keyframes shake {
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+    .modal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+    .modal-actions button { min-height: 56px; border: 1px solid var(--line); background: transparent; cursor: pointer; font-weight: 650; }
+    .modal-actions .confirm { background: var(--dark-button); color: var(--button-ink); border-color: var(--dark-button); }
+
+    .toast {
+      position: fixed;
+      z-index: 70;
+      left: 50%;
+      bottom: max(18px, env(safe-area-inset-bottom));
+      transform: translate(-50%, 18px);
+      width: max-content;
+      max-width: calc(100vw - 32px);
+      padding: 11px 14px;
+      background: var(--ink);
+      color: var(--bg);
+      font-weight: 650;
+      font-size: .84rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s, transform .2s;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    @media (max-width: 720px) {
+      .shell { padding-top: max(14px, env(safe-area-inset-top)); }
+      .dashboard { grid-template-columns: 1fr; }
+      .pressure-panel { box-shadow: none; }
+      .right-column { gap: 12px; }
+      .resources { order: -1; }
+      .resource { padding: 16px 12px 13px; }
+      .resource .value { margin-bottom: 14px; }
+      .turn-label { display: none; }
+    }
+
+    @media (max-width: 390px) {
+      .shell { padding-left: 11px; padding-right: 11px; }
+      .resources { gap: 8px; }
+      .resource { padding-left: 9px; padding-right: 9px; }
+      .stepper { gap: 3px; }
+      .stepper button { font-size: .7rem; }
+      .pressure-panel { padding-left: 16px; padding-right: 16px; }
+      .action, .transfer { padding: 0 11px; font-size: .87rem; }
+      .refill { padding: 14px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="game" aria-label="Player game controls">
+      <header class="gamebar">
+        <input class="name-input" id="playerName" autocomplete="name" maxlength="24" placeholder="Your name" aria-label="Player name" />
+        <span class="turn-label" id="turnLabel">Ready · Turn 1</span>
+        <button class="reset-button" id="resetButton">Reset</button>
+      </header>
+
+      <div class="eliminated" id="eliminatedBanner" role="alert" aria-live="assertive" tabindex="-1">
+        <div class="eliminated-card">
+          <h2>Eliminated</h2>
+          <p>Your Power reached 0. Your turn ends immediately.</p>
+          <button id="overlayReset">Start over</button>
+        </div>
+      </div>
+
+      <div class="dashboard">
+        <div class="refill" id="refillBanner" hidden>
+          <p>Out of Force. <span>Get +5 Force:</span></p>
+          <div class="refill-actions">
+            <button id="refillPay">Pay 5 Power</button>
+            <button id="refillFermi">Draw a Fermi</button>
+          </div>
+        </div>
+
+        <section class="panel pressure-panel" aria-labelledby="pressureTitle">
+          <div class="panel-head">
+            <h2 id="pressureTitle">Turn pressure</h2>
+            <div class="status" id="timerStatus"><span class="status-dot"></span><span id="statusText">Ready</span></div>
+          </div>
+
+          <div class="gauge-wrap">
+            <div class="gauge" id="gauge" role="progressbar" aria-label="Pressure remaining" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
+              <div class="gauge-value"><strong id="pressureValue">100</strong><span>pressure</span><span class="next-start-note" id="nextStartNote" hidden>Next turn starts at 90</span></div>
+            </div>
+          </div>
+
+          <div class="timer-controls">
+            <button class="start-button" id="startTurn">Start turn</button>
+            <button class="end-button" id="endTurn" disabled>End</button>
+          </div>
+
+          <p class="actions-title">Spend pressure</p>
+          <div class="action-grid" id="actionGrid">
+            <button class="action" data-pressure="15" data-force="1" data-label="Move"><span class="action-copy"><span>Move</span><small class="action-note" id="moveRequirement" hidden>need 1 Force</small></span><code>−15P −1F</code></button>
+            <button class="action" data-pressure="10" data-power="5" data-label="Fermi Fail"><span>Fermi Fail</span><code>−10P −5PW</code></button>
+            <button class="action" id="shieldButton" data-pressure="10" data-power="2" data-label="Shield"><span>Shield</span><code>−10P −2PW</code></button>
+          </div>
+
+          <p class="elimination-note">Power 0 = eliminated · Force 0 = can't Move (not eliminated)</p>
+        </section>
+
+        <div class="right-column">
+          <div class="resources" aria-label="Resource balances">
+            <section class="panel resource force" aria-labelledby="forceTitle">
+              <div class="label" id="forceTitle">Force</div>
+              <div class="value" id="forceValue">20</div>
+              <div class="stepper" data-resource="force">
+                <button data-delta="-5" aria-label="Subtract 5 Force">−5</button>
+                <button data-delta="-1" aria-label="Subtract 1 Force">−1</button>
+                <button data-delta="1" aria-label="Add 1 Force">+1</button>
+                <button data-delta="5" aria-label="Add 5 Force">+5</button>
+              </div>
+            </section>
+
+            <section class="panel resource power" aria-labelledby="powerTitle">
+              <div class="label" id="powerTitle">Power</div>
+              <div class="value" id="powerValue">20</div>
+              <div class="stepper" data-resource="power">
+                <button data-delta="-5" aria-label="Subtract 5 Power">−5</button>
+                <button data-delta="-1" aria-label="Subtract 1 Power">−1</button>
+                <button data-delta="1" aria-label="Add 1 Power">+1</button>
+                <button data-delta="5" aria-label="Add 5 Power">+5</button>
+              </div>
+            </section>
+          </div>
+
+          <section class="panel transfer-panel" aria-labelledby="transferTitle">
+            <div class="panel-head">
+              <h2 id="transferTitle">Steal &amp; swap</h2>
+            </div>
+            <div class="transfer-grid">
+              <button class="transfer" data-mode="steal-force">Steal Force</button>
+              <button class="transfer" data-mode="steal-power">Steal Power</button>
+              <button class="transfer" data-mode="swap-force">Swap Force</button>
+              <button class="transfer" data-mode="swap-power">Swap Power</button>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal-backdrop" id="transferBackdrop" role="presentation">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="transferModalTitle">
+      <h2 id="transferModalTitle">Steal Force</h2>
+      <p class="modal-hint" id="transferModalHint">How much did you take?</p>
+      <label for="transferAmount" id="transferAmountLabel">Amount</label>
+      <input id="transferAmount" type="number" min="1" max="999" step="1" value="1" inputmode="numeric" />
+      <div class="modal-actions">
+        <button id="transferCancel">Cancel</button>
+        <button class="confirm" id="transferConfirm">Confirm</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const nameInput = document.getElementById("playerName");
+      const turnLabel = document.getElementById("turnLabel");
+      const resetButton = document.getElementById("resetButton");
+      const forceValue = document.getElementById("forceValue");
+      const powerValue = document.getElementById("powerValue");
+      const pressureValue = document.getElementById("pressureValue");
+      const gauge = document.getElementById("gauge");
+      const timerStatus = document.getElementById("timerStatus");
+      const statusText = document.getElementById("statusText");
+      const startTurnButton = document.getElementById("startTurn");
+      const endTurnButton = document.getElementById("endTurn");
+      const actionButtons = Array.from(document.querySelectorAll(".action"));
+      const shieldButton = document.getElementById("shieldButton");
+      const nextStartNote = document.getElementById("nextStartNote");
+      const moveRequirement = document.getElementById("moveRequirement");
+      const resourceButtons = Array.from(document.querySelectorAll(".stepper button"));
+      const transferButtons = Array.from(document.querySelectorAll(".transfer"));
+      const refillBanner = document.getElementById("refillBanner");
+      const refillPay = document.getElementById("refillPay");
+      const refillFermi = document.getElementById("refillFermi");
+      const eliminatedBanner = document.getElementById("eliminatedBanner");
+      const toast = document.getElementById("toast");
+      const transferBackdrop = document.getElementById("transferBackdrop");
+      const transferTitle = document.getElementById("transferModalTitle");
+      const transferHint = document.getElementById("transferModalHint");
+      const transferAmountLabel = document.getElementById("transferAmountLabel");
+      const transferAmount = document.getElementById("transferAmount");
+
+      const DURATION = 60;
+      const state = {
+        force: 20,
+        power: 20,
+        pressure: 100,
+        turn: 1,
+        running: false,
+        endAt: 0,
+        penalty: 0,
+        nextStart: 100,
+        timer: null,
+        audio: null,
+        wakeLock: null,
+        eliminated: false
+      };
+      let transferMode = null;
+      let resetArmed = false;
+      let resetArmTimer = null;
+
+      const TRANSFER_COPY = {
+        "steal-force": { title: "Steal Force", hint: "You took Force from another player.", label: "Force gained", resource: "force", kind: "steal" },
+        "steal-power": { title: "Steal Power", hint: "You took Power from another player.", label: "Power gained", resource: "power", kind: "steal" },
+        "swap-force": { title: "Swap Force", hint: "You swapped Force totals with another player.", label: "Your new Force total", resource: "force", kind: "swap" },
+        "swap-power": { title: "Swap Power", hint: "You swapped Power totals with another player.", label: "Your new Power total", resource: "power", kind: "swap" }
+      };
+
+      function clampBalance(value) {
+        return Math.max(0, Math.min(999, value));
+      }
+
+      function showToast(message) {
+        toast.textContent = message;
+        toast.classList.add("show");
+        clearTimeout(showToast.timer);
+        showToast.timer = setTimeout(function () { toast.classList.remove("show"); }, 1800);
+      }
+
+      function ensureAudio() {
+        if (!state.audio) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) state.audio = new AudioContext();
+        }
+        if (state.audio && state.audio.state === "suspended") state.audio.resume();
+      }
+
+      function tone(frequency, duration, volume) {
+        if (!state.audio) return;
+        const oscillator = state.audio.createOscillator();
+        const gain = state.audio.createGain();
+        oscillator.frequency.value = frequency;
+        oscillator.type = "square";
+        gain.gain.setValueAtTime(volume || .035, state.audio.currentTime);
+        gain.gain.exponentialRampToValueAtTime(.001, state.audio.currentTime + duration);
+        oscillator.connect(gain).connect(state.audio.destination);
+        oscillator.start();
+        oscillator.stop(state.audio.currentTime + duration);
+      }
+
+      async function keepScreenAwake() {
+        if (!navigator.wakeLock || state.wakeLock) return;
+        try { state.wakeLock = await navigator.wakeLock.request("screen"); } catch (_) {}
+      }
+
+      function releaseWakeLock() {
+        if (!state.wakeLock) return;
+        state.wakeLock.release().catch(function () {});
+        state.wakeLock = null;
+      }
+
+      function canAffordAction(button) {
+        const pressureCost = Number(button.dataset.pressure || 0);
+        const forceCost = Number(button.dataset.force || 0);
+        const powerCost = Number(button.dataset.power || 0);
+        return state.pressure >= pressureCost && state.force >= forceCost && state.power >= powerCost;
+      }
+
+      function render() {
+        forceValue.textContent = state.force;
+        powerValue.textContent = state.power;
+        const displayPressure = Math.max(0, Math.min(100, Math.ceil(state.pressure)));
+        pressureValue.textContent = displayPressure;
+        gauge.style.setProperty("--progress", displayPressure + "%");
+        gauge.setAttribute("aria-valuenow", String(displayPressure));
+        const eliminated = state.eliminated || state.power <= 0;
+        eliminatedBanner.classList.toggle("show", eliminated);
+        moveRequirement.hidden = state.force >= 1;
+        refillBanner.hidden = state.force !== 0 || eliminated;
+        refillPay.disabled = state.power < 5;
+
+        timerStatus.classList.toggle("running", state.running);
+        timerStatus.classList.toggle("expired", eliminated || (!state.running && state.pressure <= 0));
+        statusText.textContent = eliminated ? "Eliminated" : (state.running ? "Running" : (state.pressure <= 0 ? "Time" : "Ready"));
+        turnLabel.textContent = (eliminated ? "Eliminated" : (state.running ? "In play" : "Ready")) + " · Turn " + state.turn;
+        startTurnButton.disabled = state.running || eliminated;
+        startTurnButton.textContent = state.pressure <= 0 ? "Start next turn" : "Start turn";
+        endTurnButton.disabled = !state.running || eliminated;
+        nextStartNote.hidden = state.nextStart >= 100;
+        nextStartNote.textContent = "Next turn starts at " + state.nextStart;
+        actionButtons.forEach(function (button) {
+          if (button === shieldButton) return;
+          button.disabled = !state.running || eliminated || !canAffordAction(button);
+        });
+        shieldButton.disabled = eliminated || (state.running ? !canAffordAction(shieldButton) : state.power < 2);
+        resourceButtons.forEach(function (button) { button.disabled = eliminated; });
+        transferButtons.forEach(function (button) { button.disabled = eliminated; });
+      }
+
+      function stopTimer() {
+        if (state.timer) clearInterval(state.timer);
+        state.timer = null;
+        state.running = false;
+        releaseWakeLock();
+      }
+
+      function eliminatePlayer() {
+        if (state.eliminated || state.power > 0) return;
+        stopTimer();
+        state.eliminated = true;
+        tone(95, .55, .06);
+        if (navigator.vibrate) navigator.vibrate([180, 90, 300]);
+        render();
+        eliminatedBanner.focus();
+      }
+
+      function endTurn(reason) {
+        if (!state.running) return;
+        stopTimer();
+        if (reason === "time") {
+          state.pressure = 0;
+          tone(145, .42, .055);
+          setTimeout(function () { tone(110, .5, .05); }, 170);
+          if (navigator.vibrate) navigator.vibrate([120, 80, 220]);
+        } else {
+          tone(260, .12, .03);
+        }
+        state.turn += 1;
+        render();
+      }
+
+      function tick() {
+        if (!state.running) return;
+        const timeRemaining = Math.max(0, state.endAt - performance.now());
+        state.pressure = Math.max(0, (timeRemaining / (DURATION * 1000)) * 100 - state.penalty);
+        if (state.pressure <= 0) {
+          endTurn("time");
+          return;
+        }
+        const rounded = Math.ceil(state.pressure);
+        if ((rounded === 25 || rounded === 10) && tick.lastSignal !== rounded) {
+          tick.lastSignal = rounded;
+          tone(rounded === 10 ? 260 : 360, .08, .025);
+          if (navigator.vibrate) navigator.vibrate(35);
+        }
+        render();
+      }
+
+      function startTurn() {
+        if (state.running || state.eliminated || state.power <= 0) return;
+        ensureAudio();
+        const startPressure = state.nextStart;
+        state.pressure = startPressure;
+        state.penalty = 100 - startPressure;
+        state.nextStart = 100;
+        state.endAt = performance.now() + DURATION * 1000;
+        state.running = true;
+        tick.lastSignal = null;
+        tone(520, .08, .025);
+        keepScreenAwake();
+        state.timer = setInterval(tick, 100);
+        render();
+      }
+
+      function syncPressure() {
+        const timeRemaining = Math.max(0, state.endAt - performance.now());
+        state.pressure = Math.max(0, (timeRemaining / (DURATION * 1000)) * 100 - state.penalty);
+      }
+
+      function spendAction(button) {
+        if (!state.running || state.eliminated || button.disabled) return;
+        syncPressure();
+        if (!canAffordAction(button)) {
+          render();
+          return;
+        }
+        const pressureCost = Number(button.dataset.pressure || 0);
+        const forceCost = Number(button.dataset.force || 0);
+        const powerCost = Number(button.dataset.power || 0);
+
+        state.penalty += pressureCost;
+        state.pressure = Math.max(0, state.pressure - pressureCost);
+        if (forceCost) state.force = Math.max(0, state.force - forceCost);
+        if (powerCost) state.power = Math.max(0, state.power - powerCost);
+
+        tone(Math.max(120, 320 - pressureCost * 3), .07, .02);
+        if (state.power <= 0) eliminatePlayer();
+        else if (state.pressure <= 0) endTurn("time");
+        else render();
+      }
+
+      function shieldAction() {
+        if (state.eliminated || state.power <= 0) return;
+        if (state.running) {
+          syncPressure();
+          if (!canAffordAction(shieldButton)) {
+            render();
+            return;
+          }
+          state.penalty += 10;
+          state.pressure = Math.max(0, state.pressure - 10);
+          state.power = Math.max(0, state.power - 2);
+          tone(300, .07, .02);
+          if (state.power <= 0) eliminatePlayer();
+          else if (state.pressure <= 0) endTurn("time");
+          else render();
+        } else {
+          if (state.power < 2) return;
+          state.power = Math.max(0, state.power - 2);
+          state.nextStart = 90;
+          tone(300, .07, .02);
+          showToast("Shielded. Next turn starts at 90 pressure.");
+          if (state.power <= 0) eliminatePlayer();
+          else render();
+        }
+      }
+
+      function adjustResource(resource, delta) {
+        if (state.eliminated) return;
+        const oldValue = state[resource];
+        state[resource] = clampBalance(oldValue + delta);
+        const actual = state[resource] - oldValue;
+        if (actual === 0) {
+          showToast(state[resource] === 0 ? "Balance is already 0" : "Balance limit reached");
+          return;
+        }
+        tone(actual > 0 ? 570 : 220, .055, .018);
+        if (resource === "power" && state.power <= 0) eliminatePlayer();
+        else render();
+      }
+
+      function refillWithPower() {
+        if (state.eliminated || state.force !== 0 || state.power < 5) return;
+        state.power -= 5;
+        state.force += 5;
+        tone(420, .08, .025);
+        if (state.power <= 0) eliminatePlayer();
+        else {
+          showToast("+5 Force for 5 Power");
+          render();
+        }
+      }
+
+      function refillWithFermi() {
+        if (state.eliminated || state.force !== 0) return;
+        state.force += 5;
+        tone(420, .08, .025);
+        showToast("+5 Force. Draw a Fermi card.");
+        render();
+      }
+
+      function openTransfer(mode) {
+        if (state.eliminated) return;
+        transferMode = mode;
+        const copy = TRANSFER_COPY[mode];
+        transferTitle.textContent = copy.title;
+        transferHint.textContent = copy.hint;
+        transferAmountLabel.textContent = copy.label;
+        transferAmount.min = copy.kind === "swap" ? "0" : "1";
+        transferAmount.value = "1";
+        transferAmount.classList.remove("shake");
+        transferBackdrop.classList.add("open");
+        document.body.style.overflow = "hidden";
+        transferAmount.focus();
+        transferAmount.select();
+      }
+
+      function closeTransfer() {
+        transferBackdrop.classList.remove("open");
+        document.body.style.overflow = "";
+        transferMode = null;
+      }
+
+      function confirmTransfer() {
+        if (!transferMode) return;
+        const copy = TRANSFER_COPY[transferMode];
+        const amount = Math.round(Number(transferAmount.value));
+        const minAmount = copy.kind === "swap" ? 0 : 1;
+        if (!Number.isFinite(amount) || amount < minAmount) {
+          transferAmount.classList.remove("shake");
+          void transferAmount.offsetWidth;
+          transferAmount.classList.add("shake");
+          transferAmount.focus();
+          return;
+        }
+        const resource = copy.resource;
+        const label = resource === "force" ? "Force" : "Power";
+        const before = state[resource];
+        if (copy.kind === "steal") state[resource] = clampBalance(before + amount);
+        else state[resource] = clampBalance(amount);
+        const change = state[resource] - before;
+        closeTransfer();
+        tone(change >= 0 ? 520 : 240, .07, .02);
+        if (resource === "power" && state.power <= 0) {
+          eliminatePlayer();
+          return;
+        }
+        showToast(label + " " + (change > 0 ? "+" : "") + change);
+        render();
+      }
+
+      function resetGame() {
+        stopTimer();
+        state.force = 20;
+        state.power = 20;
+        state.pressure = 100;
+        state.penalty = 0;
+        state.nextStart = 100;
+        state.turn = 1;
+        state.eliminated = false;
+        disarmReset();
+        closeTransfer();
+        showToast("New game. Force 20 · Power 20.");
+        render();
+      }
+
+      function disarmReset() {
+        resetArmed = false;
+        resetButton.classList.remove("armed");
+        resetButton.textContent = "Reset";
+        if (resetArmTimer) clearTimeout(resetArmTimer);
+        resetArmTimer = null;
+      }
+
+      resetButton.addEventListener("click", function () {
+        if (!resetArmed) {
+          resetArmed = true;
+          resetButton.classList.add("armed");
+          resetButton.textContent = "Tap again to reset";
+          resetArmTimer = setTimeout(disarmReset, 3000);
+          return;
+        }
+        resetGame();
+      });
+      document.getElementById("overlayReset").addEventListener("click", resetGame);
+
+      startTurnButton.addEventListener("click", startTurn);
+      endTurnButton.addEventListener("click", function () { endTurn("manual"); });
+      actionButtons.forEach(function (button) {
+        button.addEventListener("click", function () {
+          if (button === shieldButton) shieldAction();
+          else spendAction(button);
+        });
+      });
+      document.querySelectorAll(".stepper button").forEach(function (button) {
+        button.addEventListener("click", function () {
+          adjustResource(button.parentElement.dataset.resource, Number(button.dataset.delta));
+        });
+      });
+      refillPay.addEventListener("click", refillWithPower);
+      refillFermi.addEventListener("click", refillWithFermi);
+      transferButtons.forEach(function (button) {
+        button.addEventListener("click", function () { openTransfer(button.dataset.mode); });
+      });
+      document.getElementById("transferCancel").addEventListener("click", closeTransfer);
+      document.getElementById("transferConfirm").addEventListener("click", confirmTransfer);
+      transferBackdrop.addEventListener("click", function (event) {
+        if (event.target === transferBackdrop) closeTransfer();
+      });
+      transferAmount.addEventListener("keydown", function (event) {
+        if (event.key === "Enter") confirmTransfer();
+      });
+      transferAmount.addEventListener("animationend", function () {
+        transferAmount.classList.remove("shake");
+      });
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape" && transferBackdrop.classList.contains("open")) closeTransfer();
+      });
+
+      document.addEventListener("visibilitychange", function () {
+        if (document.visibilityState === "visible" && state.running) {
+          tick();
+          keepScreenAwake();
+        }
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>
